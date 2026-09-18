@@ -68,6 +68,10 @@ public final class SpawnerAnimals164 {
     }
 
     public static List<SpawnListEntry> creatures(BiomeGenBase biome) {
+        if (biome != null && Biome164.find(biome) == null) {
+            return biome.getSpawnableList(EnumCreatureType.creature);
+        }
+
         List<SpawnListEntry> list = biome == null ? null : TABLE[biome.biomeID];
         return list == null ? DEFAULT : list;
     }

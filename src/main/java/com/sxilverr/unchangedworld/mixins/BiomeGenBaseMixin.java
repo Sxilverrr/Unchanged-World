@@ -15,10 +15,8 @@ public abstract class BiomeGenBaseMixin {
 
     @Inject(method = "getFloatTemperature(III)F", at = @At("HEAD"), cancellable = true)
     private void unchangedworld$flatTemperatureLike164(int x, int y, int z, CallbackInfoReturnable<Float> cir) {
-        Biome164 values = this.unchangedworld$values();
-
-        if (values != null) {
-            cir.setReturnValue(values.temperature);
+        if (WorldTypeDefault164.isCurrent()) {
+            cir.setReturnValue(Biome164.get((BiomeGenBase) (Object) this).temperature);
         }
     }
 

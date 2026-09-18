@@ -22,6 +22,7 @@ import net.minecraft.world.gen.structure.MapGenMineshaft;
 import net.minecraft.world.gen.structure.MapGenScatteredFeature;
 import net.minecraft.world.gen.structure.MapGenStronghold;
 import net.minecraft.world.gen.structure.MapGenVillage;
+import net.minecraftforge.common.BiomeManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.terraingen.ChunkProviderEvent;
 import net.minecraftforge.event.terraingen.InitMapGenEvent;
@@ -31,6 +32,7 @@ import net.minecraftforge.event.terraingen.TerrainGen;
 import com.sxilverr.unchangedworld.world.biome.Biome164;
 import com.sxilverr.unchangedworld.world.biome.BiomeDecorator164;
 import com.sxilverr.unchangedworld.world.biome.Climate164;
+import com.sxilverr.unchangedworld.world.biome.ModdedBiomes164;
 import com.sxilverr.unchangedworld.world.biome.SpawnerAnimals164;
 import com.sxilverr.unchangedworld.world.gen.feature.WorldGenDungeons164;
 import com.sxilverr.unchangedworld.world.gen.feature.WorldGenLakes164;
@@ -93,6 +95,18 @@ public class ChunkProvider164 implements IChunkProvider {
         ravineGenerator = TerrainGen.getModdedMapGen(ravineGenerator, InitMapGenEvent.EventType.RAVINE);
         strongholdGenerator.field_151546_e.clear();
         strongholdGenerator.field_151546_e.addAll(STRONGHOLD_BIOMES);
+
+        for (BiomeGenBase biome : ModdedBiomes164.generating()) {
+            if (biome.rootHeight > 0.0F && !BiomeManager.strongHoldBiomesBlackList.contains(biome)) {
+                strongholdGenerator.field_151546_e.add(biome);
+            }
+        }
+
+        for (BiomeGenBase biome : ModdedBiomes164.among(BiomeManager.strongHoldBiomes)) {
+            if (!strongholdGenerator.field_151546_e.contains(biome)) {
+                strongholdGenerator.field_151546_e.add(biome);
+            }
+        }
     }
 
     public ChunkProvider164(World world, long seed, boolean mapFeaturesEnabled) {
@@ -219,7 +233,20 @@ public class ChunkProvider164 implements IChunkProvider {
 
         for (int z = 0; z < 16; ++z) {
             for (int x = 0; x < 16; ++x) {
-                Biome164 biome = Biome164.get(biomes[x + z * 16]);
+                Biome164 biome = Biome164.find(biomes[x + z * 16]);
+
+                if (biome == null) {
+                    biomes[x + z * 16].genTerrainBlocks(
+                        this.worldObj,
+                        this.rand,
+                        blocks,
+                        metadata,
+                        chunkX * 16 + z,
+                        chunkZ * 16 + x,
+                        this.stoneNoise[z + x * 16]);
+                    continue;
+                }
+
                 float temperature = biome.temperature;
                 int depth = (int) (this.stoneNoise[z + x * 16] / 3.0D + 3.0D + this.rand.nextDouble() * 0.25D);
                 int remaining = -1;
@@ -556,7 +583,11 @@ public class ChunkProvider164 implements IChunkProvider {
             (new WorldGenDungeons164()).generate(this.worldObj, this.rand, px, py, pz);
         }
 
-        this.decorator.decorate(this.worldObj, this.rand, biome, x, z);
+        if (Biome164.find(biome) == null) {
+            biome.decorate(this.worldObj, this.rand, x, z);
+        } else {
+            this.decorator.decorate(this.worldObj, this.rand, biome, x, z);
+        }
 
         if (TerrainGen.populate(
             provider,

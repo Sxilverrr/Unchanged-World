@@ -7,6 +7,7 @@ import net.minecraft.world.biome.BiomeGenBase;
 public final class Biome164 {
 
     private static final Biome164[] TABLE = new Biome164[256];
+    private static final Biome164[] DERIVED = new Biome164[256];
     private static final Biome164 DEFAULT = new Biome164(0.1F, 0.3F, 0.5F, Blocks.grass, Blocks.dirt, false);
 
     static {
@@ -62,7 +63,35 @@ public final class Biome164 {
     }
 
     public static Biome164 get(BiomeGenBase biome) {
-        Biome164 values = biome == null ? null : TABLE[biome.biomeID];
-        return values == null ? DEFAULT : values;
+        if (biome == null) {
+            return DEFAULT;
+        }
+
+        Biome164 values = TABLE[biome.biomeID];
+
+        if (values == null) {
+            values = DERIVED[biome.biomeID];
+
+            if (values == null) {
+                values = derive(biome);
+                DERIVED[biome.biomeID] = values;
+            }
+        }
+
+        return values;
+    }
+
+    private static Biome164 derive(BiomeGenBase biome) {
+        return new Biome164(
+            biome.rootHeight,
+            maxHeightFor(biome.heightVariation),
+            biome.temperature,
+            biome.topBlock,
+            biome.fillerBlock,
+            biome.getEnableSnow());
+    }
+
+    private static float maxHeightFor(float heightVariation) {
+        return heightVariation * 2.0F + 0.1F / 0.9F;
     }
 }

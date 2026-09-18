@@ -41,6 +41,7 @@ public class WorldChunkManager164 extends WorldChunkManager {
                 BiomeGenBase.forestHills,
                 BiomeGenBase.jungle,
                 BiomeGenBase.jungleHills));
+        this.biomesToSpawnIn.addAll(ModdedBiomes164.among(WorldChunkManager.allowedBiomes));
     }
 
     @Override
