@@ -30,6 +30,7 @@ public final class GenLayer164 {
         biomes = new GenLayerBiome164(200L, biomes);
         biomes = GenLayerZoom164.magnify(1000L, biomes, 2);
         biomes = new GenLayerHills164(1000L, biomes);
+        biomes = new GenLayerSubBiome164(1500L, biomes);
 
         for (int i = 0; i < biomeSize; ++i) {
             biomes = new GenLayerZoom164(1000L + i, biomes);

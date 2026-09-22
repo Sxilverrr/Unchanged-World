@@ -5,7 +5,6 @@ import java.util.Map;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.gen.layer.GenLayer;
 import net.minecraft.world.gen.layer.IntCache;
-import net.minecraftforge.common.BiomeManager.BiomeType;
 
 import com.sxilverr.unchangedworld.world.biome.ModdedBiomes164;
 
@@ -30,10 +29,8 @@ public class GenLayerBiome164 extends GenLayer {
             snowy[i] = biome == BiomeGenBase.taiga ? biome.biomeID : BiomeGenBase.icePlains.biomeID;
         }
 
-        this.temperatePool = new Pool(
-            temperate,
-            ModdedBiomes164.weights(BiomeType.DESERT, BiomeType.WARM, BiomeType.COOL));
-        this.snowyPool = new Pool(snowy, ModdedBiomes164.weights(BiomeType.ICY));
+        this.temperatePool = new Pool(temperate, ModdedBiomes164.temperateWeights());
+        this.snowyPool = new Pool(snowy, ModdedBiomes164.snowyWeights());
     }
 
     @Override

@@ -1,18 +1,41 @@
 package com.sxilverr.unchangedworld.world.gen.layer;
 
+import java.util.Arrays;
+
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.gen.layer.GenLayer;
 import net.minecraft.world.gen.layer.IntCache;
+
+import com.sxilverr.unchangedworld.world.biome.BiomesOPlenty164;
+import com.sxilverr.unchangedworld.world.biome.ModdedBiomes164;
 
 public class GenLayerRiverMix164 extends GenLayer {
 
     private final GenLayer biomePatternGeneratorChain;
     private final GenLayer riverPatternGeneratorChain;
+    private final int[] moddedRivers = new int[256];
 
     public GenLayerRiverMix164(long seed, GenLayer biomeChain, GenLayer riverChain) {
         super(seed);
         this.biomePatternGeneratorChain = biomeChain;
         this.riverPatternGeneratorChain = riverChain;
+        Arrays.fill(this.moddedRivers, -1);
+
+        for (BiomeGenBase biome : BiomesOPlenty164.generating()) {
+            if (!ModdedBiomes164.isModded(biome)) {
+                continue;
+            }
+
+            BiomeGenBase river = BiomesOPlenty164.riverBiome(biome.biomeID);
+
+            if (biome.getEnableSnow()) {
+                this.moddedRivers[biome.biomeID] = BiomeGenBase.frozenRiver.biomeID;
+            } else if (river != null) {
+                this.moddedRivers[biome.biomeID] = river.biomeID;
+            } else {
+                this.moddedRivers[biome.biomeID] = BiomeGenBase.river.biomeID;
+            }
+        }
     }
 
     @Override
@@ -32,7 +55,11 @@ public class GenLayerRiverMix164 extends GenLayer {
             if (biomes[i] == BiomeGenBase.ocean.biomeID) {
                 out[i] = biomes[i];
             } else if (rivers[i] >= 0) {
-                if (biomes[i] == BiomeGenBase.icePlains.biomeID) {
+                int modded = biomes[i] >= 0 && biomes[i] < this.moddedRivers.length ? this.moddedRivers[biomes[i]] : -1;
+
+                if (modded >= 0) {
+                    out[i] = modded;
+                } else if (biomes[i] == BiomeGenBase.icePlains.biomeID) {
                     out[i] = BiomeGenBase.frozenRiver.biomeID;
                 } else if (biomes[i] != BiomeGenBase.mushroomIsland.biomeID
                     && biomes[i] != BiomeGenBase.mushroomIslandShore.biomeID) {
