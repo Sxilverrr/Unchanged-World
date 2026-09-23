@@ -10,6 +10,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import com.sxilverr.unchangedworld.world.Lumi164;
 import com.sxilverr.unchangedworld.world.WorldTypeDefault164;
 
 @Mixin(Chunk.class)
@@ -36,14 +37,14 @@ public abstract class ChunkMixin {
     @Shadow
     public abstract int func_150808_b(int x, int y, int z);
 
-    private boolean unchangedworld$is164World() {
-        return this.worldObj.getWorldInfo()
+    private boolean unchangedworld$usesVanillaLighting() {
+        return !Lumi164.isLoaded() && this.worldObj.getWorldInfo()
             .getTerrainType() instanceof WorldTypeDefault164;
     }
 
     @Inject(method = "func_150809_p", at = @At("HEAD"), cancellable = true)
     private void unchangedworld$deferLightPopulation(CallbackInfo ci) {
-        if (!this.isTerrainPopulated && this.unchangedworld$is164World()) {
+        if (!this.isTerrainPopulated && this.unchangedworld$usesVanillaLighting()) {
             this.isTerrainPopulated = true;
             ci.cancel();
         }
@@ -51,7 +52,7 @@ public abstract class ChunkMixin {
 
     @Inject(method = "generateSkylightMap", at = @At("RETURN"))
     private void unchangedworld$generateSkylightMapLike164(CallbackInfo ci) {
-        if (!this.unchangedworld$is164World()) {
+        if (!this.unchangedworld$usesVanillaLighting()) {
             return;
         }
 
