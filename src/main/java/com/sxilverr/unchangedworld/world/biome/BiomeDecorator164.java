@@ -56,7 +56,7 @@ public class BiomeDecorator164 {
     private final WorldGenerator cactusGen = new WorldGenCactus();
     private final WorldGenerator waterlilyGen = new WorldGenWaterlily164();
     private final WorldGenerator treesGen = new WorldGenTrees164(false);
-    private final WorldGenBigTree164[] bigTreeGens = new WorldGenBigTree164[256];
+    private final WorldGenBigTree164[] bigTreeGens = new WorldGenBigTree164[BiomeIds164.count()];
     private final WorldGenerator forestGen = new WorldGenForest164(false);
     private final WorldGenerator swampGen = new WorldGenSwamp164();
 

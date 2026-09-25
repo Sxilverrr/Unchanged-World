@@ -32,7 +32,7 @@ public final class SpawnerAnimals164 {
             new SpawnListEntry(EntityChicken.class, 10, 4, 4),
             new SpawnListEntry(EntityCow.class, 8, 4, 4)));
     @SuppressWarnings("unchecked")
-    private static final List<SpawnListEntry>[] TABLE = new List[256];
+    private static final List<SpawnListEntry>[] TABLE = new List[BiomeIds164.count()];
 
     static {
         List<SpawnListEntry> none = Collections.emptyList();

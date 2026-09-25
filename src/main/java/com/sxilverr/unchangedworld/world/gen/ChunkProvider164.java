@@ -29,6 +29,7 @@ import net.minecraftforge.event.terraingen.InitMapGenEvent;
 import net.minecraftforge.event.terraingen.PopulateChunkEvent;
 import net.minecraftforge.event.terraingen.TerrainGen;
 
+import com.sxilverr.unchangedworld.world.EndlessIds164;
 import com.sxilverr.unchangedworld.world.biome.Biome164;
 import com.sxilverr.unchangedworld.world.biome.BiomeDecorator164;
 import com.sxilverr.unchangedworld.world.biome.Climate164;
@@ -329,10 +330,13 @@ public class ChunkProvider164 implements IChunkProvider {
         }
 
         Chunk chunk = new Chunk(this.worldObj, blocks, metadata, chunkX, chunkZ);
-        byte[] biomeArray = chunk.getBiomeArray();
 
-        for (int i = 0; i < biomeArray.length; ++i) {
-            biomeArray[i] = (byte) this.biomesForGeneration[i].biomeID;
+        if (!EndlessIds164.setBiomes(chunk, this.biomesForGeneration)) {
+            byte[] biomeArray = chunk.getBiomeArray();
+
+            for (int i = 0; i < biomeArray.length; ++i) {
+                biomeArray[i] = (byte) this.biomesForGeneration[i].biomeID;
+            }
         }
 
         chunk.generateSkylightMap();

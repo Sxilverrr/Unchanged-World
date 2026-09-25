@@ -14,7 +14,7 @@ public final class Decoration164 {
         JUNGLE
     }
 
-    private static final Decoration164[] TABLE = new Decoration164[256];
+    private static final Decoration164[] TABLE = new Decoration164[BiomeIds164.count()];
     private static final Decoration164 DEFAULT = new Decoration164(Kind.DEFAULT);
 
     static {
