@@ -6,8 +6,10 @@ public final class Decoration164 {
 
     public enum Kind {
         DEFAULT,
+        PLAINS,
         DESERT,
         HILLS,
+        SNOW,
         FOREST,
         TAIGA,
         SWAMP,
@@ -20,7 +22,7 @@ public final class Decoration164 {
     static {
         put(
             BiomeGenBase.plains,
-            new Decoration164(Kind.DEFAULT).trees(-999)
+            new Decoration164(Kind.PLAINS).trees(-999)
                 .flowers(4)
                 .grass(10));
         Decoration164 desert = new Decoration164(Kind.DESERT).trees(-999)
@@ -57,6 +59,9 @@ public final class Decoration164 {
         put(BiomeGenBase.mushroomIsland, mushroom);
         put(BiomeGenBase.mushroomIslandShore, mushroom);
         put(BiomeGenBase.beach, new Decoration164(Kind.DEFAULT).trees(-999));
+        Decoration164 snow = new Decoration164(Kind.SNOW);
+        put(BiomeGenBase.icePlains, snow);
+        put(BiomeGenBase.iceMountains, snow);
         Decoration164 jungle = new Decoration164(Kind.JUNGLE).trees(50)
             .grass(25)
             .flowers(4);

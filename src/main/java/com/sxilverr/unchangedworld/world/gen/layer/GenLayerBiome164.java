@@ -1,5 +1,6 @@
 package com.sxilverr.unchangedworld.world.gen.layer;
 
+import java.util.Collections;
 import java.util.Map;
 
 import net.minecraft.world.biome.BiomeGenBase;
@@ -10,14 +11,12 @@ import com.sxilverr.unchangedworld.world.biome.ModdedBiomes164;
 
 public class GenLayerBiome164 extends GenLayer {
 
-    private static final int VANILLA_WEIGHT = 10;
-
     private final BiomeGenBase[] allowedBiomes = { BiomeGenBase.desert, BiomeGenBase.forest, BiomeGenBase.extremeHills,
         BiomeGenBase.swampland, BiomeGenBase.plains, BiomeGenBase.taiga, BiomeGenBase.jungle };
     private final Pool temperatePool;
     private final Pool snowyPool;
 
-    public GenLayerBiome164(long seed, GenLayer parent) {
+    public GenLayerBiome164(long seed, GenLayer parent, boolean moddedBiomes, int vanillaWeight) {
         super(seed);
         this.parent = parent;
         int[] temperate = new int[this.allowedBiomes.length];
@@ -29,8 +28,12 @@ public class GenLayerBiome164 extends GenLayer {
             snowy[i] = biome == BiomeGenBase.taiga ? biome.biomeID : BiomeGenBase.icePlains.biomeID;
         }
 
-        this.temperatePool = new Pool(temperate, ModdedBiomes164.temperateWeights());
-        this.snowyPool = new Pool(snowy, ModdedBiomes164.snowyWeights());
+        Map<BiomeGenBase, Integer> none = Collections.emptyMap();
+        this.temperatePool = new Pool(
+            temperate,
+            moddedBiomes ? ModdedBiomes164.temperateWeights() : none,
+            vanillaWeight);
+        this.snowyPool = new Pool(snowy, moddedBiomes ? ModdedBiomes164.snowyWeights() : none, vanillaWeight);
     }
 
     @Override
@@ -64,7 +67,7 @@ public class GenLayerBiome164 extends GenLayer {
         private final int[] weights;
         private final int totalWeight;
 
-        private Pool(int[] vanillaIds, Map<BiomeGenBase, Integer> modded) {
+        private Pool(int[] vanillaIds, Map<BiomeGenBase, Integer> modded, int vanillaWeight) {
             int size = vanillaIds.length + modded.size();
             this.ids = new int[size];
             this.weights = new int[size];
@@ -72,7 +75,7 @@ public class GenLayerBiome164 extends GenLayer {
 
             for (int id : vanillaIds) {
                 this.ids[index] = id;
-                this.weights[index++] = VANILLA_WEIGHT;
+                this.weights[index++] = vanillaWeight;
             }
 
             for (Map.Entry<BiomeGenBase, Integer> entry : modded.entrySet()) {

@@ -3,7 +3,7 @@
 	"modList": [{
 		"modid": "${modId}",
 		"name": "${modName}",
-		"description": "Adds the 'Default 1.6.4' world type.",
+		"description": "Adds the 'Default 1.6.4' and 'Integrated 1.6.4' world types.",
 		"version": "${modVersion}",
 		"mcversion": "${minecraftVersion}",
 		"url": "https://www.curseforge.com/minecraft/mc-mods/unchanged-world",

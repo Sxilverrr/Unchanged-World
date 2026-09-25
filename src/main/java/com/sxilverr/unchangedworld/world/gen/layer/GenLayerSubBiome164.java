@@ -23,12 +23,14 @@ public class GenLayerSubBiome164 extends GenLayer {
     private final int[] offsetZ = new int[BiomeIds164.count()];
     private final boolean active;
 
-    public GenLayerSubBiome164(long seed, GenLayer parent) {
+    public GenLayerSubBiome164(long seed, GenLayer parent, boolean moddedBiomes) {
         super(seed);
         this.parent = parent;
         boolean any = false;
 
-        for (BiomeGenBase biome : ModdedBiomes164.generating()) {
+        List<BiomeGenBase> parents = moddedBiomes ? ModdedBiomes164.generating() : new ArrayList<BiomeGenBase>();
+
+        for (BiomeGenBase biome : parents) {
             List<Integer> ids = new ArrayList<Integer>();
 
             for (BiomeEntry entry : BiomesOPlenty164.subBiomes(biome.biomeID)) {

@@ -13,6 +13,7 @@ import net.minecraft.world.biome.WorldChunkManager;
 import net.minecraft.world.gen.layer.GenLayer;
 import net.minecraft.world.gen.layer.IntCache;
 
+import com.sxilverr.unchangedworld.world.Settings164;
 import com.sxilverr.unchangedworld.world.gen.layer.GenLayer164;
 
 public class WorldChunkManager164 extends WorldChunkManager {
@@ -22,13 +23,13 @@ public class WorldChunkManager164 extends WorldChunkManager {
     private final BiomeCache biomeCache;
     private final List<BiomeGenBase> biomesToSpawnIn;
 
-    public WorldChunkManager164(World world) {
-        this(world.getSeed());
+    public WorldChunkManager164(World world, Settings164 settings) {
+        this(world.getSeed(), settings);
     }
 
-    public WorldChunkManager164(long seed) {
+    public WorldChunkManager164(long seed, Settings164 settings) {
         super();
-        GenLayer[] layers = GenLayer164.initializeAllBiomeGenerators(seed);
+        GenLayer[] layers = GenLayer164.initializeAllBiomeGenerators(seed, settings);
         this.genBiomes = layers[0];
         this.biomeIndexLayer = layers[1];
         this.biomeCache = new BiomeCache(this);
@@ -41,7 +42,10 @@ public class WorldChunkManager164 extends WorldChunkManager {
                 BiomeGenBase.forestHills,
                 BiomeGenBase.jungle,
                 BiomeGenBase.jungleHills));
-        this.biomesToSpawnIn.addAll(ModdedBiomes164.among(WorldChunkManager.allowedBiomes));
+
+        if (settings.moddedBiomes) {
+            this.biomesToSpawnIn.addAll(ModdedBiomes164.among(WorldChunkManager.allowedBiomes));
+        }
     }
 
     @Override

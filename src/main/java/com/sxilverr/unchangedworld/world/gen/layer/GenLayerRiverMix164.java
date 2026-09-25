@@ -1,6 +1,8 @@
 package com.sxilverr.unchangedworld.world.gen.layer;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.gen.layer.GenLayer;
@@ -16,13 +18,15 @@ public class GenLayerRiverMix164 extends GenLayer {
     private final GenLayer riverPatternGeneratorChain;
     private final int[] moddedRivers = new int[BiomeIds164.count()];
 
-    public GenLayerRiverMix164(long seed, GenLayer biomeChain, GenLayer riverChain) {
+    public GenLayerRiverMix164(long seed, GenLayer biomeChain, GenLayer riverChain, boolean moddedBiomes) {
         super(seed);
         this.biomePatternGeneratorChain = biomeChain;
         this.riverPatternGeneratorChain = riverChain;
         Arrays.fill(this.moddedRivers, -1);
 
-        for (BiomeGenBase biome : BiomesOPlenty164.generating()) {
+        List<BiomeGenBase> generating = moddedBiomes ? BiomesOPlenty164.generating() : new ArrayList<BiomeGenBase>();
+
+        for (BiomeGenBase biome : generating) {
             if (!ModdedBiomes164.isModded(biome)) {
                 continue;
             }

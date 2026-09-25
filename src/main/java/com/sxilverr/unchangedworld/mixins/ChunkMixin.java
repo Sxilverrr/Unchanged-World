@@ -38,8 +38,9 @@ public abstract class ChunkMixin {
     public abstract int func_150808_b(int x, int y, int z);
 
     private boolean unchangedworld$usesVanillaLighting() {
-        return !Lumi164.isLoaded() && this.worldObj.getWorldInfo()
-            .getTerrainType() instanceof WorldTypeDefault164;
+        return !Lumi164.isLoaded() && WorldTypeDefault164.isLighting164(
+            this.worldObj.getWorldInfo()
+                .getTerrainType());
     }
 
     @Inject(method = "func_150809_p", at = @At("HEAD"), cancellable = true)

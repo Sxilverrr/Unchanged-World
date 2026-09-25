@@ -55,17 +55,17 @@ public class BiomeDecorator164 {
     private final WorldGenerator reedGen = new WorldGenReed();
     private final WorldGenerator cactusGen = new WorldGenCactus();
     private final WorldGenerator waterlilyGen = new WorldGenWaterlily164();
-    private final WorldGenerator treesGen = new WorldGenTrees164(false);
+    protected final WorldGenerator treesGen = new WorldGenTrees164(false);
     private final WorldGenBigTree164[] bigTreeGens = new WorldGenBigTree164[BiomeIds164.count()];
-    private final WorldGenerator forestGen = new WorldGenForest164(false);
+    protected final WorldGenerator forestGen = new WorldGenForest164(false);
     private final WorldGenerator swampGen = new WorldGenSwamp164();
 
-    private World world;
-    private Random rand;
-    private int chunkX;
-    private int chunkZ;
-    private Decoration164 settings;
-    private BiomeGenBase biome;
+    protected World world;
+    protected Random rand;
+    protected int chunkX;
+    protected int chunkZ;
+    protected Decoration164 settings;
+    protected BiomeGenBase biome;
 
     public void decorate(World world, Random rand, BiomeGenBase biome, int chunkX, int chunkZ) {
         if (this.world != null) {
@@ -78,12 +78,76 @@ public class BiomeDecorator164 {
         this.chunkZ = chunkZ;
         this.settings = Decoration164.get(biome);
         this.biome = biome;
+        this.decorateBefore();
         this.decorate();
+        this.decorateAfter();
         this.decorateExtra();
         this.world = null;
         this.rand = null;
         this.settings = null;
         this.biome = null;
+    }
+
+    protected void decorateBefore() {}
+
+    protected void decorateAfter() {}
+
+    protected int treesPerChunk() {
+        return this.settings.treesPerChunk;
+    }
+
+    protected int sandPerChunk() {
+        return this.settings.sandPerChunk;
+    }
+
+    protected int sandPerChunk2() {
+        return this.settings.sandPerChunk2;
+    }
+
+    protected int flowersPerChunk() {
+        return this.settings.flowersPerChunk;
+    }
+
+    protected int grassPerChunk() {
+        return this.settings.grassPerChunk;
+    }
+
+    protected int mushroomsPerChunk() {
+        return this.settings.mushroomsPerChunk;
+    }
+
+    protected WorldGenerator secondSandGen() {
+        return this.sandGen;
+    }
+
+    protected boolean jungleVines() {
+        return true;
+    }
+
+    protected void decorateFlowers() {
+        for (int count = 0, flowers = this.flowersPerChunk(); count < flowers; ++count) {
+            int x = this.chunkX + this.rand.nextInt(16) + 8;
+            int y = this.rand.nextInt(128);
+            int z = this.chunkZ + this.rand.nextInt(16) + 8;
+            this.plantYellowGen.generate(this.world, this.rand, x, y, z);
+
+            if (this.rand.nextInt(4) == 0) {
+                x = this.chunkX + this.rand.nextInt(16) + 8;
+                y = this.rand.nextInt(128);
+                z = this.chunkZ + this.rand.nextInt(16) + 8;
+                this.plantRedGen.generate(this.world, this.rand, x, y, z);
+            }
+        }
+    }
+
+    protected void decorateGrass() {
+        for (int count = 0, grass = this.grassPerChunk(); count < grass; ++count) {
+            int x = this.chunkX + this.rand.nextInt(16) + 8;
+            int y = this.rand.nextInt(128);
+            int z = this.chunkZ + this.rand.nextInt(16) + 8;
+            this.getRandomWorldGenForGrass()
+                .generate(this.world, this.rand, x, y, z);
+        }
     }
 
     private void decorate() {
@@ -96,7 +160,7 @@ public class BiomeDecorator164 {
 
         boolean generate = TerrainGen
             .decorate(this.world, this.rand, this.chunkX, this.chunkZ, DecorateBiomeEvent.Decorate.EventType.SAND);
-        for (count = 0; generate && count < this.settings.sandPerChunk2; ++count) {
+        for (count = 0; generate && count < this.sandPerChunk2(); ++count) {
             x = this.chunkX + this.rand.nextInt(16) + 8;
             z = this.chunkZ + this.rand.nextInt(16) + 8;
             this.sandGen.generate(this.world, this.rand, x, this.world.getTopSolidOrLiquidBlock(x, z), z);
@@ -116,13 +180,14 @@ public class BiomeDecorator164 {
             this.chunkX,
             this.chunkZ,
             DecorateBiomeEvent.Decorate.EventType.SAND_PASS2);
-        for (count = 0; generate && count < this.settings.sandPerChunk; ++count) {
+        for (count = 0; generate && count < this.sandPerChunk(); ++count) {
             x = this.chunkX + this.rand.nextInt(16) + 8;
             z = this.chunkZ + this.rand.nextInt(16) + 8;
-            this.sandGen.generate(this.world, this.rand, x, this.world.getTopSolidOrLiquidBlock(x, z), z);
+            this.secondSandGen()
+                .generate(this.world, this.rand, x, this.world.getTopSolidOrLiquidBlock(x, z), z);
         }
 
-        int trees = this.settings.treesPerChunk;
+        int trees = this.treesPerChunk();
 
         if (this.rand.nextInt(10) == 0) {
             ++trees;
@@ -152,28 +217,14 @@ public class BiomeDecorator164 {
 
         generate = TerrainGen
             .decorate(this.world, this.rand, this.chunkX, this.chunkZ, DecorateBiomeEvent.Decorate.EventType.FLOWERS);
-        for (count = 0; generate && count < this.settings.flowersPerChunk; ++count) {
-            x = this.chunkX + this.rand.nextInt(16) + 8;
-            y = this.rand.nextInt(128);
-            z = this.chunkZ + this.rand.nextInt(16) + 8;
-            this.plantYellowGen.generate(this.world, this.rand, x, y, z);
-
-            if (this.rand.nextInt(4) == 0) {
-                x = this.chunkX + this.rand.nextInt(16) + 8;
-                y = this.rand.nextInt(128);
-                z = this.chunkZ + this.rand.nextInt(16) + 8;
-                this.plantRedGen.generate(this.world, this.rand, x, y, z);
-            }
+        if (generate) {
+            this.decorateFlowers();
         }
 
         generate = TerrainGen
             .decorate(this.world, this.rand, this.chunkX, this.chunkZ, DecorateBiomeEvent.Decorate.EventType.GRASS);
-        for (count = 0; generate && count < this.settings.grassPerChunk; ++count) {
-            x = this.chunkX + this.rand.nextInt(16) + 8;
-            y = this.rand.nextInt(128);
-            z = this.chunkZ + this.rand.nextInt(16) + 8;
-            WorldGenerator grass = this.getRandomWorldGenForGrass();
-            grass.generate(this.world, this.rand, x, y, z);
+        if (generate) {
+            this.decorateGrass();
         }
 
         generate = TerrainGen
@@ -200,7 +251,7 @@ public class BiomeDecorator164 {
 
         generate = TerrainGen
             .decorate(this.world, this.rand, this.chunkX, this.chunkZ, DecorateBiomeEvent.Decorate.EventType.SHROOM);
-        for (count = 0; generate && count < this.settings.mushroomsPerChunk; ++count) {
+        for (count = 0; generate && count < this.mushroomsPerChunk(); ++count) {
             if (this.rand.nextInt(4) == 0) {
                 x = this.chunkX + this.rand.nextInt(16) + 8;
                 z = this.chunkZ + this.rand.nextInt(16) + 8;
@@ -323,6 +374,10 @@ public class BiomeDecorator164 {
 
                 break;
             case JUNGLE:
+                if (!this.jungleVines()) {
+                    break;
+                }
+
                 WorldGenVines vines = new WorldGenVines();
 
                 for (int i = 0; i < 50; ++i) {
@@ -338,7 +393,7 @@ public class BiomeDecorator164 {
         }
     }
 
-    private WorldGenerator getRandomWorldGenForTrees() {
+    protected WorldGenerator getRandomWorldGenForTrees() {
         switch (this.settings.kind) {
             case FOREST:
                 return this.rand.nextInt(5) == 0 ? this.forestGen
@@ -357,7 +412,7 @@ public class BiomeDecorator164 {
         }
     }
 
-    private WorldGenerator bigTree() {
+    protected WorldGenerator bigTree() {
         WorldGenBigTree164 generator = this.bigTreeGens[this.biome.biomeID];
 
         if (generator == null) {
@@ -368,7 +423,7 @@ public class BiomeDecorator164 {
         return generator;
     }
 
-    private WorldGenerator getRandomWorldGenForGrass() {
+    protected WorldGenerator getRandomWorldGenForGrass() {
         if (this.settings.kind == Decoration164.Kind.JUNGLE) {
             return this.rand.nextInt(4) == 0 ? new WorldGenTallGrass164(Blocks.tallgrass, 2)
                 : new WorldGenTallGrass164(Blocks.tallgrass, 1);

@@ -5,6 +5,7 @@ import net.minecraft.world.WorldType;
 import net.minecraft.world.biome.WorldChunkManager;
 import net.minecraft.world.chunk.IChunkProvider;
 
+import com.sxilverr.unchangedworld.world.biome.BiomeDecorator164;
 import com.sxilverr.unchangedworld.world.biome.WorldChunkManager164;
 import com.sxilverr.unchangedworld.world.gen.ChunkProvider164;
 
@@ -15,7 +16,11 @@ public class WorldTypeDefault164 extends WorldType {
     private static boolean current;
 
     public WorldTypeDefault164() {
-        super(NAME);
+        this(NAME);
+    }
+
+    protected WorldTypeDefault164(String name) {
+        super(name);
     }
 
     public static boolean isCurrent() {
@@ -26,9 +31,25 @@ public class WorldTypeDefault164 extends WorldType {
         current = value;
     }
 
+    public static boolean isClimate164(WorldType type) {
+        return type instanceof WorldTypeDefault164 && ((WorldTypeDefault164) type).climate164();
+    }
+
+    public static boolean isLighting164(WorldType type) {
+        return type instanceof WorldTypeDefault164 && ((WorldTypeDefault164) type).lighting164();
+    }
+
+    public boolean climate164() {
+        return true;
+    }
+
+    public boolean lighting164() {
+        return true;
+    }
+
     @Override
     public WorldChunkManager getChunkManager(World world) {
-        return new WorldChunkManager164(world);
+        return new WorldChunkManager164(world, this.settings());
     }
 
     @Override
@@ -37,6 +58,16 @@ public class WorldTypeDefault164 extends WorldType {
             world,
             world.getSeed(),
             world.getWorldInfo()
-                .isMapFeaturesEnabled());
+                .isMapFeaturesEnabled(),
+            this.settings(),
+            this.createDecorator());
+    }
+
+    protected Settings164 settings() {
+        return new Settings164();
+    }
+
+    protected BiomeDecorator164 createDecorator() {
+        return new BiomeDecorator164();
     }
 }

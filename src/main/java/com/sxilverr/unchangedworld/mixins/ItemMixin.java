@@ -21,7 +21,7 @@ public abstract class ItemMixin {
     @Inject(method = "getChestGenBase", at = @At("HEAD"), cancellable = true, remap = false)
     private void unchangedworld$rollEnchantedBookLike164(ChestGenHooks chest, Random rand,
         WeightedRandomChestContent original, CallbackInfoReturnable<WeightedRandomChestContent> cir) {
-        if (Generation164.isActive() && (Object) this instanceof ItemEnchantedBook) {
+        if (Generation164.isBooks164() && (Object) this instanceof ItemEnchantedBook) {
             cir.setReturnValue(
                 Loot164.enchantedBook(
                     rand,

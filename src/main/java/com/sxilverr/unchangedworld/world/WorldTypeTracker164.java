@@ -10,8 +10,9 @@ public class WorldTypeTracker164 {
     public void onWorldLoad(WorldEvent.Load event) {
         if (event.world.provider.dimensionId == 0) {
             WorldTypeDefault164.setCurrent(
-                event.world.getWorldInfo()
-                    .getTerrainType() instanceof WorldTypeDefault164);
+                WorldTypeDefault164.isClimate164(
+                    event.world.getWorldInfo()
+                        .getTerrainType()));
         }
     }
 
