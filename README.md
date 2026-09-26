@@ -29,6 +29,5 @@ Integrated 1.6.4 is configured in `config/unchangedworld.cfg`. Changes only affe
 - Compatible with Modded biomes.
 - Compatible with Colored Lights (RPLE).
 - Compatible with EndlessIDs.
-- If you use Biomes O' Plenty, open config/biomesoplenty/biomegen.cfg and set every line under "vanilla biomes to override" to false, 
-- otherwise BoP replaces the vanilla biomes with its own versions. If you are okay with this, then just leave it.
+- If you use Biomes O' Plenty, open config/biomesoplenty/biomegen.cfg and set every line under "vanilla biomes to override" to false, otherwise BoP replaces the vanilla biomes with its own versions. If you are okay with this, then just leave it.
 
