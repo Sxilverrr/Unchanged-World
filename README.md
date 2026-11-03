@@ -19,7 +19,7 @@ On a server, set `level-type=default_1_6_4` or `level-type=integrated_1_6_4` in 
 Integrated 1.6.4 is configured in `config/unchangedworld.cfg`. Changes only affect newly generated chunks.
 
 - **Generator**: biome layout, terrain, caves, ravines, lighting, climate, surface rules, animal spawns, dungeons, mineshafts, stronghold biomes and chest books.
-- **Biomes**: large biomes, modded biomes, and the weight of the 1.6.4 biomes against modded ones.
+- **Biomes**: biome size from 0.5x to 8x, modded biomes, the weight of the 1.6.4 biomes against modded ones, and climate zones.
 - **Surface**: gravel sea floors, deeper sandstone and stone patches on extreme hills.
 - **Decoration**: each 1.7.10 plant feature on or off and the 1.6.4 jungle vines.
 - **Trees**: 1.7.10 tree selection for forests, extreme hills, ice plains and jungles.

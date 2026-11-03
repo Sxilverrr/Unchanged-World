@@ -28,14 +28,29 @@ public class GenLayer164 extends GenLayer {
         layer = new GenLayerZoom164(2003L, layer);
         layer = new GenLayer164(4L, layer, GenLayer164::addIsland);
         GenLayer continents = new GenLayer164(5L, layer, GenLayer164::addMushroomIsland);
-        int biomeSize = settings.largeBiomes ? 6 : 4;
+        int biomeSize = settings.biomeSize;
 
         GenLayer rivers = new GenLayerRiverInit164(100L, continents);
         rivers = GenLayerZoom164.magnify(1000L, rivers, biomeSize + 2);
         rivers = new GenLayer164(1L, rivers, GenLayer164::river);
         rivers = new GenLayer164(1000L, rivers, GenLayer164::smooth);
 
-        GenLayer biomes = new GenLayerBiome164(200L, continents, settings.moddedBiomes, settings.vanillaBiomeWeight);
+        GenLayer zones = null;
+        GenLayer dryness = null;
+
+        if (settings.climateZones) {
+            zones = GenLayerZoom164.magnify(2100L, new GenLayerRoll164(3L, 3, 8), 2);
+            zones = new GenLayer164(2L, zones, GenLayer164::climateZone);
+            dryness = GenLayerZoom164.magnify(2200L, new GenLayerRoll164(7L, 1, 2), 2);
+        }
+
+        GenLayer biomes = new GenLayerBiome164(
+            200L,
+            continents,
+            zones,
+            dryness,
+            settings.moddedBiomes,
+            settings.vanillaBiomeWeight);
         biomes = GenLayerZoom164.magnify(1000L, biomes, 2);
         biomes = new GenLayer164(1000L, biomes, GenLayer164::hills);
         biomes = new GenLayerSubBiome164(1500L, biomes, settings.moddedBiomes);
@@ -135,6 +150,21 @@ public class GenLayer164 extends GenLayer {
         }
 
         return layer.nextInt(5) == 0 ? BiomeGenBase.icePlains.biomeID : 1;
+    }
+
+    private static int climateZone(GenLayer164 layer, int[] p, int i, int w) {
+        if (p[i] != 0) {
+            return p[i - w] == 0 || p[i + 1] == 0 || p[i - 1] == 0 || p[i + w] == 0 ? GenLayerBiome164.COOL
+                : GenLayerBiome164.COLD;
+        }
+
+        for (int row = i - w; row <= i + w; row += w) {
+            if (p[row - 1] != 0 || p[row] != 0 || p[row + 1] != 0) {
+                return GenLayerBiome164.TEMPERATE;
+            }
+        }
+
+        return GenLayerBiome164.WARM;
     }
 
     private static int hills(GenLayer164 layer, int[] p, int i, int w) {

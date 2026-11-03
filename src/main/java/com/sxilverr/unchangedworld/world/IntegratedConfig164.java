@@ -1,6 +1,7 @@
 package com.sxilverr.unchangedworld.world;
 
 import java.io.File;
+import java.util.Arrays;
 
 import net.minecraftforge.common.config.Configuration;
 
@@ -14,6 +15,7 @@ public final class IntegratedConfig164 {
     private static final String V164 = "1.6.4";
     private static final String V1710 = "1.7.10";
     private static final String[] VERSIONS = { V164, V1710 };
+    private static final String[] BIOME_SIZES = { "0.5x", "1x (Vanilla)", "2x", "4x (Large Biomes)", "8x" };
 
     private static Configuration config;
     private static Settings164 settings = new Settings164();
@@ -66,8 +68,18 @@ public final class IntegratedConfig164 {
         loaded.strongholdBiomes1710 = is1710(CATEGORY, "strongholdBiomes", "Biomes that can hold strongholds.");
         loaded.chestBooks1710 = is1710(CATEGORY, "chestBooks", "Enchanted books in generated chests.");
 
-        loaded.largeBiomes = config
-            .getBoolean("largeBiomes", BIOMES, false, "Larger biomes, like the Large Biomes world type.");
+        boolean largeBiomes = config.hasKey(BIOMES, "largeBiomes") && config.getCategory(BIOMES)
+            .remove("largeBiomes")
+            .getBoolean(false);
+        int biomeSize = Arrays.asList(BIOME_SIZES)
+            .indexOf(
+                config.getString(
+                    "biomeSize",
+                    BIOMES,
+                    BIOME_SIZES[largeBiomes ? 3 : 1],
+                    "Biome width compared to vanilla.",
+                    BIOME_SIZES));
+        loaded.biomeSize = (biomeSize < 0 ? 1 : biomeSize) + 3;
         loaded.moddedBiomes = config.getBoolean("moddedBiomes", BIOMES, true, "Biomes from other mods.");
         loaded.vanillaBiomeWeight = config.getInt(
             "vanillaBiomeWeight",
@@ -76,6 +88,8 @@ public final class IntegratedConfig164 {
             1,
             1000,
             "Weight of each 1.6.4 biome against modded biome weights.");
+        loaded.climateZones = config
+            .getBoolean("climateZones", BIOMES, false, "Warm, temperate, cool, and cold climate zones.");
 
         loaded.gravelOceanFloor = config.getBoolean("gravelOceanFloor", SURFACE, false, "Gravel under deep water.");
         loaded.deepSandstone = config.getBoolean("deepSandstone", SURFACE, false, "Deeper sandstone under sand.");

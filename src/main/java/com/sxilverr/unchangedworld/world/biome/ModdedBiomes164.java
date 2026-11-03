@@ -47,9 +47,13 @@ public final class ModdedBiomes164 {
     }
 
     public static Map<BiomeGenBase, Integer> snowyWeights() {
+        return weights(BiomeType.ICY, BiomesOPlenty164.ICY);
+    }
+
+    public static Map<BiomeGenBase, Integer> weights(BiomeType forgeType, int biomesOPlentyType) {
         Map<BiomeGenBase, Integer> weights = new LinkedHashMap<BiomeGenBase, Integer>();
-        addForge(weights, BiomeType.ICY);
-        addBiomesOPlenty(weights, BiomesOPlenty164.ICY);
+        addForge(weights, forgeType);
+        addBiomesOPlenty(weights, biomesOPlentyType);
         return weights;
     }
 
