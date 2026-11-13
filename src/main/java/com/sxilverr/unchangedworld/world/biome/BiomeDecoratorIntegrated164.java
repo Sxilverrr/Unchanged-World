@@ -52,7 +52,7 @@ public class BiomeDecoratorIntegrated164 extends BiomeDecorator164 {
                     this.flowerField = noise < FLOWER_FIELD_THRESHOLD;
                 }
 
-                if (this.options.plainsDoubleGrass && !this.flowerField) {
+                if (this.options.doubleTallGrass && !this.flowerField) {
                     this.doublePlants(DOUBLE_GRASS, 7);
                 }
 

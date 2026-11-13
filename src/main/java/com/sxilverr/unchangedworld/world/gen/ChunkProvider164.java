@@ -519,7 +519,7 @@ public class ChunkProvider164 implements IChunkProvider {
 
     @Override
     public void populate(IChunkProvider provider, int chunkX, int chunkZ) {
-        Generation164.begin(!this.settings.chestBooks1710);
+        Generation164.begin(this.settings);
 
         try {
             this.populate164(provider, chunkX, chunkZ);

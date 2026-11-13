@@ -87,9 +87,14 @@ public final class IntegratedConfig164 {
             10,
             1,
             1000,
-            "Weight of each 1.6.4 biome against modded biome weights.");
+            "Weight of each vanilla biome against modded biome weights.");
         loaded.climateZones = config
             .getBoolean("climateZones", BIOMES, false, "Warm, temperate, cool, and cold climate zones.");
+        loaded.newBiomes = config.getBoolean(
+            "newBiomes",
+            BIOMES,
+            false,
+            "1.7.10 biomes such as savanna, mesa, birch forest, deep oceans, etc.");
 
         loaded.gravelOceanFloor = config.getBoolean("gravelOceanFloor", SURFACE, false, "Gravel under deep water.");
         loaded.deepSandstone = config.getBoolean("deepSandstone", SURFACE, false, "Deeper sandstone under sand.");
@@ -98,8 +103,11 @@ public final class IntegratedConfig164 {
 
         loaded.flowers1710 = config
             .getBoolean("flowers", DECORATION, true, "1.7.10 flowers: tulips, orchids, daisies and poppies.");
-        loaded.plainsDoubleGrass = config
-            .getBoolean("plainsDoubleGrass", DECORATION, true, "Double tall grass in plains.");
+        boolean plainsDoubleGrass = !config.hasKey(DECORATION, "plainsDoubleGrass") || config.getCategory(DECORATION)
+            .remove("plainsDoubleGrass")
+            .getBoolean(true);
+        loaded.doubleTallGrass = config
+            .getBoolean("doubleTallGrass", DECORATION, plainsDoubleGrass, "Allow double tall grass to generate.");
         loaded.forestDoublePlants = config
             .getBoolean("forestDoublePlants", DECORATION, true, "Lilacs, rose bushes and peonies in forests.");
         loaded.taigaLargeFerns = config.getBoolean("taigaLargeFerns", DECORATION, true, "Large ferns in taigas.");

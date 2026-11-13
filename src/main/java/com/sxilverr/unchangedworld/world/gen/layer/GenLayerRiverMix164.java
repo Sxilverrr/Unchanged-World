@@ -56,7 +56,7 @@ public class GenLayerRiverMix164 extends GenLayer {
         int[] out = IntCache.getIntCache(areaWidth * areaHeight);
 
         for (int i = 0; i < areaWidth * areaHeight; ++i) {
-            if (biomes[i] == BiomeGenBase.ocean.biomeID) {
+            if (biomes[i] == BiomeGenBase.ocean.biomeID || biomes[i] == BiomeGenBase.deepOcean.biomeID) {
                 out[i] = biomes[i];
             } else if (rivers[i] >= 0) {
                 int modded = biomes[i] >= 0 && biomes[i] < this.moddedRivers.length ? this.moddedRivers[biomes[i]] : -1;

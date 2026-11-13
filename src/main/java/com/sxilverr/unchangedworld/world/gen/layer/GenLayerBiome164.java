@@ -1,5 +1,6 @@
 package com.sxilverr.unchangedworld.world.gen.layer;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -23,16 +24,18 @@ public class GenLayerBiome164 extends GenLayer {
         BiomeGenBase.swampland, BiomeGenBase.plains, BiomeGenBase.taiga, BiomeGenBase.jungle };
     private final GenLayer zones;
     private final GenLayer dryness;
+    private final boolean newBiomes;
     private final Pool temperatePool;
     private final Pool snowyPool;
     private final Pool[][] zonePools = new Pool[4][];
 
     public GenLayerBiome164(long seed, GenLayer parent, GenLayer zones, GenLayer dryness, boolean moddedBiomes,
-        int vanillaWeight) {
+        boolean newBiomes, int vanillaWeight) {
         super(seed);
         this.parent = parent;
         this.zones = zones;
         this.dryness = dryness;
+        this.newBiomes = newBiomes;
         BiomeGenBase[] snowy = new BiomeGenBase[this.allowedBiomes.length];
 
         for (int i = 0; i < snowy.length; ++i) {
@@ -41,33 +44,64 @@ public class GenLayerBiome164 extends GenLayer {
 
         Map<BiomeGenBase, Integer> none = Collections.emptyMap();
         this.temperatePool = new Pool(
-            this.allowedBiomes,
+            with(
+                newBiomes,
+                this.allowedBiomes,
+                BiomeGenBase.savanna,
+                BiomeGenBase.mesaPlateau,
+                BiomeGenBase.roofedForest,
+                BiomeGenBase.birchForest,
+                BiomeGenBase.megaTaiga),
             moddedBiomes ? ModdedBiomes164.temperateWeights() : none,
             vanillaWeight);
-        this.snowyPool = new Pool(snowy, moddedBiomes ? ModdedBiomes164.snowyWeights() : none, vanillaWeight);
+        this.snowyPool = new Pool(
+            with(newBiomes, snowy, BiomeGenBase.coldTaiga),
+            moddedBiomes ? ModdedBiomes164.snowyWeights() : none,
+            vanillaWeight);
 
         if (zones != null) {
             this.zonePools[WARM] = zone(
                 moddedBiomes ? ModdedBiomes164.weights(BiomeType.DESERT, BiomesOPlenty164.HOT) : none,
                 vanillaWeight,
                 new BiomeGenBase[] { BiomeGenBase.jungle, BiomeGenBase.jungle, BiomeGenBase.swampland },
-                new BiomeGenBase[] { BiomeGenBase.desert, BiomeGenBase.plains });
+                with(
+                    newBiomes,
+                    new BiomeGenBase[] { BiomeGenBase.desert, BiomeGenBase.plains },
+                    BiomeGenBase.savanna,
+                    BiomeGenBase.mesaPlateau));
             this.zonePools[TEMPERATE] = zone(
                 moddedBiomes ? ModdedBiomes164.weights(BiomeType.WARM, BiomesOPlenty164.WARM) : none,
                 vanillaWeight,
-                new BiomeGenBase[] { BiomeGenBase.forest, BiomeGenBase.forest, BiomeGenBase.swampland },
+                with(
+                    newBiomes,
+                    new BiomeGenBase[] { BiomeGenBase.forest, BiomeGenBase.forest, BiomeGenBase.swampland },
+                    BiomeGenBase.roofedForest,
+                    BiomeGenBase.birchForest),
                 new BiomeGenBase[] { BiomeGenBase.plains, BiomeGenBase.extremeHills });
             this.zonePools[COOL] = zone(
                 moddedBiomes ? ModdedBiomes164.weights(BiomeType.COOL, BiomesOPlenty164.COOL) : none,
                 vanillaWeight,
-                new BiomeGenBase[] { BiomeGenBase.taiga, BiomeGenBase.forest },
+                with(newBiomes, new BiomeGenBase[] { BiomeGenBase.taiga, BiomeGenBase.forest }, BiomeGenBase.megaTaiga),
                 new BiomeGenBase[] { BiomeGenBase.taiga, BiomeGenBase.extremeHills });
             this.zonePools[COLD] = zone(
                 moddedBiomes ? ModdedBiomes164.weights(BiomeType.ICY, BiomesOPlenty164.ICY) : none,
                 vanillaWeight,
-                new BiomeGenBase[] { BiomeGenBase.icePlains, BiomeGenBase.taiga },
+                with(
+                    newBiomes,
+                    new BiomeGenBase[] { BiomeGenBase.icePlains, BiomeGenBase.taiga },
+                    BiomeGenBase.coldTaiga),
                 new BiomeGenBase[] { BiomeGenBase.icePlains });
         }
+    }
+
+    private static BiomeGenBase[] with(boolean add, BiomeGenBase[] biomes, BiomeGenBase... extra) {
+        if (!add) {
+            return biomes;
+        }
+
+        BiomeGenBase[] all = Arrays.copyOf(biomes, biomes.length + extra.length);
+        System.arraycopy(extra, 0, all, biomes.length, extra.length);
+        return all;
     }
 
     private static Pool[] zone(Map<BiomeGenBase, Integer> modded, int vanillaWeight, BiomeGenBase[] wet,
@@ -104,12 +138,21 @@ public class GenLayerBiome164 extends GenLayer {
                 this.initChunkSeed(x + areaX, y + areaY);
                 int value = parentInts[i];
 
-                if (value == 0 || value == BiomeGenBase.mushroomIsland.biomeID) {
+                if (value == 0 || value == BiomeGenBase.mushroomIsland.biomeID
+                    || value == BiomeGenBase.deepOcean.biomeID) {
                     out[i] = value;
                 } else {
                     Pool pool = zoneInts != null ? this.zonePools[zoneInts[i]][dryInts[i]]
                         : value == 1 ? this.temperatePool : this.snowyPool;
-                    out[i] = pool.pick(this.nextInt(pool.totalWeight));
+                    int biome = pool.pick(this.nextInt(pool.totalWeight));
+
+                    if (biome == BiomeGenBase.mesaPlateau.biomeID && this.nextInt(3) == 0) {
+                        biome = BiomeGenBase.mesaPlateau_F.biomeID;
+                    }
+
+                    out[i] = this.newBiomes && this.nextInt(29) == 0
+                        && biome < 128
+                        && ModdedBiomes164.isVanilla(biome + 128) ? biome + 128 : biome;
                 }
             }
         }

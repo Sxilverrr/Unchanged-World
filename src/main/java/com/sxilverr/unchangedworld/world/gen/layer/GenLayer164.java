@@ -5,8 +5,12 @@ import net.minecraft.world.gen.layer.GenLayer;
 import net.minecraft.world.gen.layer.IntCache;
 
 import com.sxilverr.unchangedworld.world.Settings164;
+import com.sxilverr.unchangedworld.world.biome.Biome164;
+import com.sxilverr.unchangedworld.world.biome.ModdedBiomes164;
 
 public class GenLayer164 extends GenLayer {
+
+    private static final int MUTATION = 128;
 
     private final Rule rule;
 
@@ -44,15 +48,17 @@ public class GenLayer164 extends GenLayer {
             dryness = GenLayerZoom164.magnify(2200L, new GenLayerRoll164(7L, 1, 2), 2);
         }
 
+        boolean newBiomes = settings.newBiomes;
         GenLayer biomes = new GenLayerBiome164(
             200L,
-            continents,
+            newBiomes ? new GenLayer164(4L, continents, GenLayer164::deepOcean) : continents,
             zones,
             dryness,
             settings.moddedBiomes,
+            newBiomes,
             settings.vanillaBiomeWeight);
         biomes = GenLayerZoom164.magnify(1000L, biomes, 2);
-        biomes = new GenLayer164(1000L, biomes, GenLayer164::hills);
+        biomes = new GenLayer164(1000L, biomes, (owner, p, i, w) -> hills(owner, p, i, w, newBiomes));
         biomes = new GenLayerSubBiome164(1500L, biomes, settings.moddedBiomes);
 
         for (int i = 0; i < biomeSize; ++i) {
@@ -61,7 +67,7 @@ public class GenLayer164 extends GenLayer {
                 biomes = new GenLayer164(3L, biomes, GenLayer164::addIsland);
             }
             if (i == 1) {
-                biomes = new GenLayer164(1000L, biomes, GenLayer164::shore);
+                biomes = new GenLayer164(1000L, biomes, newBiomes ? GenLayer164::shore1710 : GenLayer164::shore);
                 biomes = new GenLayer164(1000L, biomes, GenLayer164::swampRivers);
             }
         }
@@ -167,23 +173,51 @@ public class GenLayer164 extends GenLayer {
         return GenLayerBiome164.WARM;
     }
 
-    private static int hills(GenLayer164 layer, int[] p, int i, int w) {
+    private static int deepOcean(GenLayer164 layer, int[] p, int i, int w) {
+        return p[i] == 0 && p[i - w] == 0 && p[i + 1] == 0 && p[i - 1] == 0 && p[i + w] == 0
+            ? BiomeGenBase.deepOcean.biomeID
+            : p[i];
+    }
+
+    private static int hills(GenLayer164 layer, int[] p, int i, int w, boolean newBiomes) {
         int center = p[i];
         boolean roll = layer.nextInt(3) == 0;
-        int hills = center;
+        boolean mutated = center >= MUTATION && ModdedBiomes164.isVanilla(center);
+        int base = mutated ? center - MUTATION : center;
+        int hills = base;
 
-        if (center == BiomeGenBase.desert.biomeID) {
+        if (base == BiomeGenBase.desert.biomeID) {
             hills = BiomeGenBase.desertHills.biomeID;
-        } else if (center == BiomeGenBase.forest.biomeID) {
+        } else if (base == BiomeGenBase.forest.biomeID) {
             hills = BiomeGenBase.forestHills.biomeID;
-        } else if (center == BiomeGenBase.taiga.biomeID) {
+        } else if (base == BiomeGenBase.taiga.biomeID) {
             hills = BiomeGenBase.taigaHills.biomeID;
-        } else if (center == BiomeGenBase.plains.biomeID) {
+        } else if (base == BiomeGenBase.plains.biomeID) {
             hills = BiomeGenBase.forest.biomeID;
-        } else if (center == BiomeGenBase.icePlains.biomeID) {
+        } else if (base == BiomeGenBase.icePlains.biomeID) {
             hills = BiomeGenBase.iceMountains.biomeID;
-        } else if (center == BiomeGenBase.jungle.biomeID) {
+        } else if (base == BiomeGenBase.jungle.biomeID) {
             hills = BiomeGenBase.jungleHills.biomeID;
+        } else if (base == BiomeGenBase.birchForest.biomeID) {
+            hills = BiomeGenBase.birchForestHills.biomeID;
+        } else if (base == BiomeGenBase.roofedForest.biomeID) {
+            hills = BiomeGenBase.plains.biomeID;
+        } else if (base == BiomeGenBase.megaTaiga.biomeID) {
+            hills = BiomeGenBase.megaTaigaHills.biomeID;
+        } else if (base == BiomeGenBase.coldTaiga.biomeID) {
+            hills = BiomeGenBase.coldTaigaHills.biomeID;
+        } else if (base == BiomeGenBase.savanna.biomeID) {
+            hills = BiomeGenBase.savannaPlateau.biomeID;
+        } else if (base == BiomeGenBase.mesaPlateau.biomeID || base == BiomeGenBase.mesaPlateau_F.biomeID) {
+            hills = BiomeGenBase.mesa.biomeID;
+        } else if (newBiomes && base == BiomeGenBase.extremeHills.biomeID) {
+            hills = BiomeGenBase.extremeHillsPlus.biomeID;
+        } else if (base == BiomeGenBase.deepOcean.biomeID && layer.nextInt(3) == 0) {
+            hills = layer.nextInt(2) == 0 ? BiomeGenBase.plains.biomeID : BiomeGenBase.forest.biomeID;
+        }
+
+        if (mutated) {
+            hills = hills != base && ModdedBiomes164.isVanilla(hills + MUTATION) ? hills + MUTATION : center;
         }
 
         return roll && p[i - w] == center && p[i + 1] == center && p[i - 1] == center && p[i + w] == center ? hills
@@ -230,6 +264,61 @@ public class GenLayer164 extends GenLayer {
         }
 
         return center;
+    }
+
+    private static int shore1710(GenLayer164 layer, int[] p, int i, int w) {
+        int center = p[i];
+        int north = p[i - w];
+        int east = p[i + 1];
+        int west = p[i - 1];
+        int south = p[i + w];
+        boolean nearOcean = oceanic(north) || oceanic(east) || oceanic(west) || oceanic(south);
+
+        if (center == BiomeGenBase.mushroomIsland.biomeID) {
+            return shore(layer, p, i, w);
+        }
+
+        if (jungle(center)) {
+            return !jungleNeighbour(north) || !jungleNeighbour(east)
+                || !jungleNeighbour(west)
+                || !jungleNeighbour(south) ? BiomeGenBase.jungleEdge.biomeID
+                    : nearOcean ? BiomeGenBase.beach.biomeID : center;
+        }
+
+        if (extremeHills(center)) {
+            return nearOcean ? BiomeGenBase.stoneBeach.biomeID
+                : extremeHills(north) && extremeHills(east) && extremeHills(west) && extremeHills(south) ? center
+                    : BiomeGenBase.extremeHillsEdge.biomeID;
+        }
+
+        if (!nearOcean || oceanic(center) || center == BiomeGenBase.swampland.biomeID) {
+            return center;
+        }
+
+        return Biome164.get(BiomeGenBase.getBiome(center)).enableSnow ? BiomeGenBase.coldBeach.biomeID
+            : BiomeGenBase.beach.biomeID;
+    }
+
+    private static boolean oceanic(int biome) {
+        return biome == BiomeGenBase.ocean.biomeID || biome == BiomeGenBase.deepOcean.biomeID
+            || biome == BiomeGenBase.frozenOcean.biomeID;
+    }
+
+    private static boolean jungle(int biome) {
+        return biome == BiomeGenBase.jungle.biomeID || biome == BiomeGenBase.jungleHills.biomeID
+            || biome == BiomeGenBase.jungle.biomeID + MUTATION;
+    }
+
+    private static boolean jungleNeighbour(int biome) {
+        return jungle(biome) || biome == BiomeGenBase.forest.biomeID
+            || biome == BiomeGenBase.taiga.biomeID
+            || oceanic(biome);
+    }
+
+    private static boolean extremeHills(int biome) {
+        return biome == BiomeGenBase.extremeHills.biomeID || biome == BiomeGenBase.extremeHillsPlus.biomeID
+            || biome == BiomeGenBase.extremeHills.biomeID + MUTATION
+            || biome == BiomeGenBase.extremeHillsPlus.biomeID + MUTATION;
     }
 
     private static int swampRivers(GenLayer164 layer, int[] p, int i, int w) {
