@@ -4,6 +4,7 @@ public final class Settings164 {
 
     public boolean layout1710;
     public boolean terrain1710;
+    public int biomeHeights;
     public boolean caves1710;
     public boolean ravines1710;
     public boolean lighting1710;

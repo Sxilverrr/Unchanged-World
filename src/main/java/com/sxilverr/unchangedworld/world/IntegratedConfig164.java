@@ -15,6 +15,7 @@ public final class IntegratedConfig164 {
     private static final String V164 = "1.6.4";
     private static final String V1710 = "1.7.10";
     private static final String[] VERSIONS = { V164, V1710 };
+    private static final String[] BIOME_HEIGHTS = { V164, "1.1", "Beta 1.8" };
     private static final String[] BIOME_SIZES = { "0.5x", "1x (Vanilla)", "2x", "4x (Large Biomes)", "8x" };
 
     private static Configuration config;
@@ -50,7 +51,13 @@ public final class IntegratedConfig164 {
         loaded.terrain1710 = is1710(
             CATEGORY,
             "terrain",
-            "Terrain generator. With 1.7.10 only the biome layout, lighting and biome options still apply.");
+            "Terrain generator. With 1.7.10, only the biome and lighting options will apply.");
+        loaded.biomeHeights = Math.max(
+            0,
+            Arrays.asList(BIOME_HEIGHTS)
+                .indexOf(
+                    config
+                        .getString("biomeHeights", CATEGORY, V164, "Biome heights for 1.6.4 terrain.", BIOME_HEIGHTS)));
         loaded.caves1710 = is1710(CATEGORY, "caves", "Caves.");
         loaded.ravines1710 = is1710(CATEGORY, "ravines", "Ravines.");
         loaded.lighting1710 = is1710(CATEGORY, "lighting", "Chunk lighting rules.");

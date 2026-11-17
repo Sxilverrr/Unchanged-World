@@ -8,6 +8,7 @@ public final class Biome164 {
 
     private static final Biome164[] TABLE = new Biome164[BiomeGenBase.getBiomeGenArray().length];
     private static final Biome164[] DERIVED = new Biome164[TABLE.length];
+    private static final Biome164[][] HEIGHTS = { TABLE, null, null };
     private static final Biome164 DEFAULT = new Biome164(0.1F, 0.3F, 0.5F, Blocks.grass, Blocks.dirt, false);
 
     static {
@@ -34,6 +35,20 @@ public final class Biome164 {
         put(BiomeGenBase.extremeHillsEdge, 0.2F, 0.8F, 0.2F, Blocks.grass, Blocks.dirt, false);
         put(BiomeGenBase.jungle, 0.2F, 0.4F, 1.2F, Blocks.grass, Blocks.dirt, false);
         put(BiomeGenBase.jungleHills, 1.8F, 0.5F, 1.2F, Blocks.grass, Blocks.dirt, false);
+
+        for (int version = 1; version < HEIGHTS.length; ++version) {
+            HEIGHTS[version] = TABLE.clone();
+            heights(version, BiomeGenBase.desertHills, 0.2F, 0.7F);
+            heights(version, BiomeGenBase.forestHills, 0.2F, 0.6F);
+            heights(version, BiomeGenBase.taigaHills, 0.2F, 0.7F);
+            heights(version, BiomeGenBase.jungleHills, 1.8F, 0.2F);
+        }
+
+        heights(1, BiomeGenBase.extremeHills, 0.2F, 1.3F);
+        heights(1, BiomeGenBase.iceMountains, 0.2F, 1.2F);
+        heights(2, BiomeGenBase.ocean, -1.0F, 0.5F);
+        heights(2, BiomeGenBase.extremeHills, 0.2F, 1.8F);
+        heights(2, BiomeGenBase.iceMountains, 0.2F, 1.8F);
     }
 
     public final float minHeight;
@@ -56,6 +71,22 @@ public final class Biome164 {
     private static void put(BiomeGenBase biome, float minHeight, float maxHeight, float temperature, Block topBlock,
         Block fillerBlock, boolean enableSnow) {
         TABLE[biome.biomeID] = new Biome164(minHeight, maxHeight, temperature, topBlock, fillerBlock, enableSnow);
+    }
+
+    private static void heights(int version, BiomeGenBase biome, float minHeight, float maxHeight) {
+        Biome164 base = TABLE[biome.biomeID];
+        HEIGHTS[version][biome.biomeID] = new Biome164(
+            minHeight,
+            maxHeight,
+            base.temperature,
+            base.topBlock,
+            base.fillerBlock,
+            base.enableSnow);
+    }
+
+    public static Biome164 get(BiomeGenBase biome, int heights) {
+        Biome164 values = biome == null ? null : HEIGHTS[heights][biome.biomeID];
+        return values != null ? values : get(biome);
     }
 
     public static Biome164 find(BiomeGenBase biome) {

@@ -422,12 +422,14 @@ public class ChunkProvider164 implements IChunkProvider {
                 float minSum = 0.0F;
                 float weightSum = 0.0F;
                 byte radius = 2;
-                Biome164 center = Biome164.get(this.biomesForGeneration[ix + 2 + (iz + 2) * (sizeX + 5)]);
+                Biome164 center = Biome164
+                    .get(this.biomesForGeneration[ix + 2 + (iz + 2) * (sizeX + 5)], this.settings.biomeHeights);
 
                 for (int ox = -radius; ox <= radius; ++ox) {
                     for (int oz = -radius; oz <= radius; ++oz) {
-                        Biome164 neighbour = Biome164
-                            .get(this.biomesForGeneration[ix + ox + 2 + (iz + oz + 2) * (sizeX + 5)]);
+                        Biome164 neighbour = Biome164.get(
+                            this.biomesForGeneration[ix + ox + 2 + (iz + oz + 2) * (sizeX + 5)],
+                            this.settings.biomeHeights);
                         float weight = this.parabolicField[ox + 2 + (oz + 2) * 5] / (neighbour.minHeight + 2.0F);
 
                         if (neighbour.minHeight > center.minHeight) {
