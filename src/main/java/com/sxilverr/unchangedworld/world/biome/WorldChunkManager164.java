@@ -29,14 +29,15 @@ public class WorldChunkManager164 extends WorldChunkManager {
         this.biomeIndexLayer = layers[1];
         this.biomeCache = new BiomeCache(this);
         this.biomesToSpawnIn = new ArrayList<BiomeGenBase>(
-            Arrays.asList(
-                BiomeGenBase.forest,
-                BiomeGenBase.plains,
-                BiomeGenBase.taiga,
-                BiomeGenBase.taigaHills,
-                BiomeGenBase.forestHills,
-                BiomeGenBase.jungle,
-                BiomeGenBase.jungleHills));
+            settings.biomeLayout == 2 ? Arrays.asList(BiomeGenBase.forest, BiomeGenBase.swampland, BiomeGenBase.taiga)
+                : Arrays.asList(
+                    BiomeGenBase.forest,
+                    BiomeGenBase.plains,
+                    BiomeGenBase.taiga,
+                    BiomeGenBase.taigaHills,
+                    BiomeGenBase.forestHills,
+                    BiomeGenBase.jungle,
+                    BiomeGenBase.jungleHills));
 
         if (settings.moddedBiomes) {
             this.biomesToSpawnIn.addAll(ModdedBiomes164.among(WorldChunkManager.allowedBiomes));

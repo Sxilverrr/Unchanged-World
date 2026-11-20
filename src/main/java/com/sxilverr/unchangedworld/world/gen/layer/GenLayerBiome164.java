@@ -20,8 +20,9 @@ public class GenLayerBiome164 extends GenLayer {
     static final int COOL = 2;
     static final int COLD = 3;
 
-    private final BiomeGenBase[] allowedBiomes = { BiomeGenBase.desert, BiomeGenBase.forest, BiomeGenBase.extremeHills,
-        BiomeGenBase.swampland, BiomeGenBase.plains, BiomeGenBase.taiga, BiomeGenBase.jungle };
+    private static final BiomeGenBase[] ALLOWED_BIOMES = { BiomeGenBase.desert, BiomeGenBase.forest,
+        BiomeGenBase.extremeHills, BiomeGenBase.swampland, BiomeGenBase.plains, BiomeGenBase.taiga,
+        BiomeGenBase.jungle };
     private final GenLayer zones;
     private final GenLayer dryness;
     private final boolean newBiomes;
@@ -30,23 +31,24 @@ public class GenLayerBiome164 extends GenLayer {
     private final Pool[][] zonePools = new Pool[4][];
 
     public GenLayerBiome164(long seed, GenLayer parent, GenLayer zones, GenLayer dryness, boolean moddedBiomes,
-        boolean newBiomes, int vanillaWeight) {
+        boolean newBiomes, boolean layout164, int vanillaWeight) {
         super(seed);
         this.parent = parent;
         this.zones = zones;
         this.dryness = dryness;
         this.newBiomes = newBiomes;
-        BiomeGenBase[] snowy = new BiomeGenBase[this.allowedBiomes.length];
+        BiomeGenBase[] allowed = layout164 ? ALLOWED_BIOMES : Arrays.copyOf(ALLOWED_BIOMES, ALLOWED_BIOMES.length - 1);
+        BiomeGenBase[] snowy = new BiomeGenBase[allowed.length];
 
         for (int i = 0; i < snowy.length; ++i) {
-            snowy[i] = this.allowedBiomes[i] == BiomeGenBase.taiga ? BiomeGenBase.taiga : BiomeGenBase.icePlains;
+            snowy[i] = layout164 && allowed[i] == BiomeGenBase.taiga ? BiomeGenBase.taiga : BiomeGenBase.icePlains;
         }
 
         Map<BiomeGenBase, Integer> none = Collections.emptyMap();
         this.temperatePool = new Pool(
             with(
                 newBiomes,
-                this.allowedBiomes,
+                allowed,
                 BiomeGenBase.savanna,
                 BiomeGenBase.mesaPlateau,
                 BiomeGenBase.roofedForest,

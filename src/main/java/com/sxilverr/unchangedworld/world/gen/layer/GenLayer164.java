@@ -21,17 +21,34 @@ public class GenLayer164 extends GenLayer {
     }
 
     public static GenLayer[] initializeAllBiomeGenerators(long seed, Settings164 settings) {
+        boolean layout164 = settings.biomeLayout == 0;
+        boolean beta = settings.biomeLayout == 2;
         GenLayer layer = new GenLayerIsland164(1L);
         layer = new GenLayerZoom164.Fuzzy(2000L, layer);
-        layer = new GenLayer164(1L, layer, GenLayer164::addIsland);
-        layer = new GenLayerZoom164(2001L, layer);
-        layer = new GenLayer164(2L, layer, GenLayer164::addIsland);
-        layer = new GenLayer164(2L, layer, GenLayer164::addSnow);
-        layer = new GenLayerZoom164(2002L, layer);
-        layer = new GenLayer164(3L, layer, GenLayer164::addIsland);
-        layer = new GenLayerZoom164(2003L, layer);
-        layer = new GenLayer164(4L, layer, GenLayer164::addIsland);
-        GenLayer continents = new GenLayer164(5L, layer, GenLayer164::addMushroomIsland);
+        GenLayer continents;
+
+        if (beta) {
+            layer = new GenLayer164(1L, layer, GenLayer164::addIslandBeta);
+            layer = new GenLayerZoom164(2001L, layer);
+            layer = new GenLayer164(2L, layer, GenLayer164::addIslandBeta);
+            layer = new GenLayerZoom164(2002L, layer);
+            layer = new GenLayer164(3L, layer, GenLayer164::addIslandBeta);
+            layer = new GenLayerZoom164(2003L, layer);
+            layer = new GenLayer164(3L, layer, GenLayer164::addIslandBeta);
+            layer = new GenLayerZoom164(2004L, layer);
+            continents = new GenLayer164(3L, layer, GenLayer164::addIslandBeta);
+        } else {
+            layer = new GenLayer164(1L, layer, GenLayer164::addIsland);
+            layer = new GenLayerZoom164(2001L, layer);
+            layer = new GenLayer164(2L, layer, GenLayer164::addIsland);
+            layer = new GenLayer164(2L, layer, GenLayer164::addSnow);
+            layer = new GenLayerZoom164(2002L, layer);
+            layer = new GenLayer164(3L, layer, GenLayer164::addIsland);
+            layer = new GenLayerZoom164(2003L, layer);
+            layer = new GenLayer164(4L, layer, GenLayer164::addIsland);
+            continents = new GenLayer164(5L, layer, GenLayer164::addMushroomIsland);
+        }
+
         int biomeSize = settings.biomeSize;
 
         GenLayer rivers = new GenLayerRiverInit164(100L, continents);
@@ -42,13 +59,13 @@ public class GenLayer164 extends GenLayer {
         GenLayer zones = null;
         GenLayer dryness = null;
 
-        if (settings.climateZones) {
+        if (settings.climateZones && layout164) {
             zones = GenLayerZoom164.magnify(2100L, new GenLayerRoll164(3L, 3, 8), 2);
             zones = new GenLayer164(2L, zones, GenLayer164::climateZone);
             dryness = GenLayerZoom164.magnify(2200L, new GenLayerRoll164(7L, 1, 2), 2);
         }
 
-        boolean newBiomes = settings.newBiomes;
+        boolean newBiomes = settings.newBiomes && layout164;
         GenLayer biomes = new GenLayerBiome164(
             200L,
             newBiomes ? new GenLayer164(4L, continents, GenLayer164::deepOcean) : continents,
@@ -56,17 +73,20 @@ public class GenLayer164 extends GenLayer {
             dryness,
             settings.moddedBiomes,
             newBiomes,
+            layout164,
             settings.vanillaBiomeWeight);
         biomes = GenLayerZoom164.magnify(1000L, biomes, 2);
-        biomes = new GenLayer164(1000L, biomes, (owner, p, i, w) -> hills(owner, p, i, w, newBiomes));
+        if (!beta) {
+            biomes = new GenLayer164(1000L, biomes, (owner, p, i, w) -> hills(owner, p, i, w, newBiomes));
+        }
         biomes = new GenLayerSubBiome164(1500L, biomes, settings.moddedBiomes);
 
         for (int i = 0; i < biomeSize; ++i) {
             biomes = new GenLayerZoom164(1000L + i, biomes);
             if (i == 0) {
-                biomes = new GenLayer164(3L, biomes, GenLayer164::addIsland);
+                biomes = new GenLayer164(3L, biomes, beta ? GenLayer164::addIslandBeta : GenLayer164::addIsland);
             }
-            if (i == 1) {
+            if (i == 1 && !beta) {
                 biomes = new GenLayer164(1000L, biomes, newBiomes ? GenLayer164::shore1710 : GenLayer164::shore);
                 biomes = new GenLayer164(1000L, biomes, GenLayer164::swampRivers);
             }
@@ -133,6 +153,24 @@ public class GenLayer164 extends GenLayer {
 
         if (center > 0 && (topLeft == 0 || topRight == 0 || bottomLeft == 0 || bottomRight == 0)) {
             return layer.nextInt(5) == 0 ? frozenOrZero(center) : center;
+        }
+
+        return center;
+    }
+
+    private static int addIslandBeta(GenLayer164 layer, int[] p, int i, int w) {
+        int topLeft = p[i - w - 1];
+        int topRight = p[i - w + 1];
+        int bottomLeft = p[i + w - 1];
+        int bottomRight = p[i + w + 1];
+        int center = p[i];
+
+        if (center == 0 && (topLeft != 0 || topRight != 0 || bottomLeft != 0 || bottomRight != 0)) {
+            return layer.nextInt(3) / 2;
+        }
+
+        if (center == 1 && (topLeft != 1 || topRight != 1 || bottomLeft != 1 || bottomRight != 1)) {
+            return 1 - layer.nextInt(5) / 4;
         }
 
         return center;

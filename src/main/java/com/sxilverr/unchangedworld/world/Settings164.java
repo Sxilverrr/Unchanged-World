@@ -3,6 +3,7 @@ package com.sxilverr.unchangedworld.world;
 public final class Settings164 {
 
     public boolean layout1710;
+    public int biomeLayout;
     public boolean terrain1710;
     public int biomeHeights;
     public boolean caves1710;

@@ -15,7 +15,8 @@ public final class IntegratedConfig164 {
     private static final String V164 = "1.6.4";
     private static final String V1710 = "1.7.10";
     private static final String[] VERSIONS = { V164, V1710 };
-    private static final String[] BIOME_HEIGHTS = { V164, "1.1", "Beta 1.8" };
+    private static final String[] OLD_VERSIONS = { V164, "1.1", "Beta 1.8" };
+    private static final String[] BIOME_LAYOUTS = { V164, V1710, "1.1", "Beta 1.8" };
     private static final String[] BIOME_SIZES = { "0.5x", "1x (Vanilla)", "2x", "4x (Large Biomes)", "8x" };
 
     private static Configuration config;
@@ -39,25 +40,27 @@ public final class IntegratedConfig164 {
     public static void reload() {
         Settings164 loaded = new Settings164();
         config.setCategoryComment(CATEGORY, "Integrated 1.6.4 world type. Changes only affect newly generated chunks.");
-        config.setCategoryComment(BIOMES, "Options for the 1.6.4 biome layout.");
+        config.setCategoryComment(BIOMES, "Options for the 1.6.4, 1.1 and Beta 1.8 biome layouts.");
         config.setCategoryComment(SURFACE, "1.7.10 surface details, used with 1.6.4 surface rules.");
         config.setCategoryComment(DECORATION, "1.7.10 plants added to the 1.6.4 biomes.");
         config.setCategoryComment(TREES, "1.7.10 tree selection for the 1.6.4 biomes.");
 
-        loaded.layout1710 = is1710(
-            CATEGORY,
-            "biomeLayout",
-            "Biome layout. 1.6.4 has large continents and the 1.6.4 biomes, 1.7.10 has climate zones and all 1.7.10 biomes.");
+        String layout = config.getString("biomeLayout", CATEGORY, V164, "Biome layout.", BIOME_LAYOUTS);
+        loaded.layout1710 = V1710.equals(layout);
+        loaded.biomeLayout = Math.max(
+            0,
+            Arrays.asList(OLD_VERSIONS)
+                .indexOf(layout));
         loaded.terrain1710 = is1710(
             CATEGORY,
             "terrain",
             "Terrain generator. With 1.7.10, only the biome and lighting options will apply.");
         loaded.biomeHeights = Math.max(
             0,
-            Arrays.asList(BIOME_HEIGHTS)
+            Arrays.asList(OLD_VERSIONS)
                 .indexOf(
                     config
-                        .getString("biomeHeights", CATEGORY, V164, "Biome heights for 1.6.4 terrain.", BIOME_HEIGHTS)));
+                        .getString("biomeHeights", CATEGORY, V164, "Biome heights for 1.6.4 terrain.", OLD_VERSIONS)));
         loaded.caves1710 = is1710(CATEGORY, "caves", "Caves.");
         loaded.ravines1710 = is1710(CATEGORY, "ravines", "Ravines.");
         loaded.lighting1710 = is1710(CATEGORY, "lighting", "Chunk lighting rules.");
@@ -95,13 +98,16 @@ public final class IntegratedConfig164 {
             1,
             1000,
             "Weight of each vanilla biome against modded biome weights.");
-        loaded.climateZones = config
-            .getBoolean("climateZones", BIOMES, false, "Warm, temperate, cool, and cold climate zones.");
+        loaded.climateZones = config.getBoolean(
+            "climateZones",
+            BIOMES,
+            false,
+            "Warm, temperate, cool, and cold climate zones. 1.6.4 layout only.");
         loaded.newBiomes = config.getBoolean(
             "newBiomes",
             BIOMES,
             false,
-            "1.7.10 biomes such as savanna, mesa, birch forest, deep oceans, etc.");
+            "1.7.10 biomes such as savanna, mesa, birch forest, deep oceans, etc. 1.6.4 layout only.");
 
         loaded.gravelOceanFloor = config.getBoolean("gravelOceanFloor", SURFACE, false, "Gravel under deep water.");
         loaded.deepSandstone = config.getBoolean("deepSandstone", SURFACE, false, "Deeper sandstone under sand.");
